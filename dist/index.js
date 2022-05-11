@@ -75,7 +75,8 @@ function createMessage(pytestResult) {
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        if (github.context.eventName !== 'pull_request') {
+        core.info(github.context.eventName);
+        if (['pull_request', 'pull_request_target'].indexOf(github.context.eventName) == -1) {
             core.info('Comment only will be created on pull requests!');
             return;
         }

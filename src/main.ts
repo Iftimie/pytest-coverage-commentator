@@ -51,9 +51,8 @@ function createMessage(pytestResult: any): string {
           }
         }
         if (tabOfText[3] !== undefined) {
-          newMessage += `${
-            tabOfText[0] + tabOfText[1] + tabOfText[2] + tabOfText[3]
-          }|\n`
+          newMessage += `${tabOfText[0] + tabOfText[1] + tabOfText[2] + tabOfText[3]
+            }|\n`
         }
       }
     }
@@ -62,7 +61,10 @@ function createMessage(pytestResult: any): string {
 }
 
 async function run(): Promise<void> {
-  if (github.context.eventName !== 'pull_request') {
+  core.info(github.context.eventName)
+  if (
+    ['pull_request', 'pull_request_target'].indexOf(github.context.eventName) == -1
+  ) {
     core.info('Comment only will be created on pull requests!')
     return
   }
@@ -78,7 +80,7 @@ async function run(): Promise<void> {
   const octokit = github.getOctokit(githubToken)
 
   // Now decide if we should issue a new comment or edit an old one
-  const {data: comments} = await octokit.issues.listComments({
+  const { data: comments } = await octokit.issues.listComments({
     ...context.repo,
     issue_number: pullRequestNumber ?? 0
   })
