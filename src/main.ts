@@ -51,9 +51,8 @@ function createMessage(pytestResult: any): string {
           }
         }
         if (tabOfText[3] !== undefined) {
-          newMessage += `${
-            tabOfText[0] + tabOfText[1] + tabOfText[2] + tabOfText[3]
-          }|\n`
+          newMessage += `${tabOfText[0] + tabOfText[1] + tabOfText[2] + tabOfText[3]
+            }|\n`
         }
       }
     }
@@ -62,26 +61,34 @@ function createMessage(pytestResult: any): string {
 }
 
 async function run(): Promise<void> {
-  if (github.context.eventName !== 'pull_request') {
+  core.info(github.context.eventName)
+  if (
+    ['pull_request', 'pull_request_target'].indexOf(github.context.eventName) == -1
+  ) {
     core.info('Comment only will be created on pull requests!')
     return
   }
 
   const githubToken = core.getInput('token')
+  core.info("Passes core.getInput('token')")
   const pytestFileName = core.getInput('pytest-coverage')
+  core.info("Passes core.getInput('pytest-coverage')")
 
   const message = createMessage(pytestFileName)
+  core.info("Passes createMessage(pytestFileName)")
 
   const context = github.context
   const pullRequestNumber = context.payload.pull_request?.number
 
   const octokit = github.getOctokit(githubToken)
+  core.info("Passes github.getOctokit(githubToken)")
 
   // Now decide if we should issue a new comment or edit an old one
-  const {data: comments} = await octokit.issues.listComments({
+  const { data: comments } = await octokit.issues.listComments({
     ...context.repo,
     issue_number: pullRequestNumber ?? 0
   })
+  core.info("Passes ctokit.issues.listComments")
 
   const comment = comments.find((comment: any) => {
     return (
@@ -98,12 +105,16 @@ async function run(): Promise<void> {
       comment_id: comment.id,
       body: message
     })
+    core.info("ctokit.issues.updateComment")
+
   } else {
     await octokit.issues.createComment({
       ...context.repo,
       issue_number: pullRequestNumber ?? 0,
       body: message
     })
+    core.info("octokit.issues.createCommen")
+
   }
 }
 
